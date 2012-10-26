@@ -13,7 +13,7 @@ Protected Module VTAPI
 
 	#tag Method, Flags = &h21
 		Private Sub ConstructUpload(File As FolderItem, ByRef VTSock As HTTPSecureSocket)
-		  dim rawdata, data, LStrReturnData, FileName as string
+		  dim rawdata, data as string
 		  dim ReadStream as BinaryStream
 		  
 		  ReadStream = BinaryStream.Open(File)
@@ -46,7 +46,7 @@ Protected Module VTAPI
 		  data = data + "--" + boundary + CRLF + CRLF
 		  //whew...
 		  
-		  VTSock.SetPostContent data, "multipart/form-data, boundary=" + boundary
+		  VTSock.SetRequestContent data, "multipart/form-data, boundary=" + boundary
 		End Sub
 	#tag EndMethod
 
@@ -2192,14 +2192,13 @@ Protected Module VTAPI
 	#tag Method, Flags = &h1
 		Protected Function SendRequest(URL As String, Request As JSONItem, VTSock As HTTPSecureSocket = Nil, Timeout As Integer = 5) As JSONItem
 		  If VTSock = Nil Then VTSock = New HTTPSecureSocket
-		  VTSock.SetRequestHeader("User-Agent", "VT-Hash-Check/" + version + " (Not at all like Mozilla)")
+		  VTSock.SetRequestHeader("User-Agent", "RB-VTAPI")
 		  VTSock.Secure = True
 		  dim formData As New Dictionary
 		  For Each Name As String In Request.Names
 		    formData.Value(Name) = Request.Value(Name)
 		  Next
 		  VTSock.SetFormData(formData)
-		  Window1.ProgressBar1.Value = 5
 		  Dim s As String = VTSock.Post(URL, Timeout)
 		  Dim js As JSONItem
 		  Try
