@@ -12,14 +12,12 @@ Protected Module VTAPI
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
-		Private Sub ConstructUpload(File As FolderItem, ByRef VTSock As HTTPSecureSocket)
+		Private Function ConstructUpload(File As FolderItem) As String
 		  dim rawdata, data as string
 		  dim ReadStream as BinaryStream
 		  
 		  ReadStream = BinaryStream.Open(File)
 		  rawdata = ReadStream.Read(File.Length)
-		  
-		  Const boundary = "--------0xKhTmLbOuNdArY"
 		  
 		  
 		  // Step 1: Initialize data string
@@ -31,10 +29,10 @@ Protected Module VTAPI
 		  // as a separate MIME part, followed by a boundary
 		  
 		  // Now the file name of the first image
-		  data = data + "Content-Disposition: form-data; name=""file""" + CRLF + CRLF + File.Name + CRLF
+		  'data = data + "Content-Disposition: form-data; name=""file""" + CRLF + CRLF + File.Name + CRLF
 		  
 		  // boundary to separate the above from the next part
-		  data = data + "--" + boundary + CRLF
+		  'data = data + "--" + boundary + CRLF
 		  
 		  // Next comes the actual file itself, with headers indicating what type it is
 		  // and what content type we&apos;re using (raw binary in this case)
@@ -46,8 +44,8 @@ Protected Module VTAPI
 		  data = data + "--" + boundary + CRLF + CRLF
 		  //whew...
 		  
-		  VTSock.SetRequestContent data, "multipart/form-data, boundary=" + boundary
-		End Sub
+		  Return data
+		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
@@ -2194,6 +2192,7 @@ Protected Module VTAPI
 		  If VTSock = Nil Then VTSock = New HTTPSecureSocket
 		  VTSock.SetRequestHeader("User-Agent", "RB-VTAPI")
 		  VTSock.Secure = True
+		  VTSock.ConnectionType = VTSock.TLSv1
 		  dim formData As New Dictionary
 		  For Each Name As String In Request.Names
 		    formData.Value(Name) = Request.Value(Name)
@@ -2204,6 +2203,7 @@ Protected Module VTAPI
 		  Try
 		    js = New JSONItem(s)
 		    LastResponseCode = js.Value("response_code")
+		    LastResponseVerbose = js.Value("verbose_msg")
 		    Return New JSONItem(s)
 		  Catch Err As JSONException
 		    If VTSock.LastErrorCode <> 0 Then
@@ -2229,11 +2229,11 @@ Protected Module VTAPI
 		  Case 100
 		    err = err + ": Could not create a socket!"
 		  Case 103
-		    err = err + ": VirusTotal.com is not responding in a timely mannner."
+		    err = err + ": Connection timed out."
 		  Case 105
 		    err = err + ": That port number is already in use."
 		  Case 106
-		    err = err + ": You can't do that right now."
+		    err = err + ": Socket is not ready for that command."
 		  Case 107
 		    err = err + ": Could not bind to port."
 		  Case 108
@@ -2248,12 +2248,16 @@ Protected Module VTAPI
 
 	#tag Method, Flags = &h0
 		Function SubmitFile(File As FolderItem, APIKey As String) As JSONItem
+		  'FIME
+		  'Please note that this method doesn't actually work.
+		  
 		  Dim js As New JSONItem
 		  Dim sock As New HTTPSecureSocket
 		  
 		  'js.Value("file") = File.Name
 		  js.Value("apikey") = APIKey
-		  ConstructUpload(File, sock)
+		  Dim upload As String = ConstructUpload(File)  '<-- doesn't work. help? https://www.virustotal.com/documentation/public-api/#scanning-files
+		  sock.SetRequestContent(upload, "multipart/form-data, boundary=" + boundary)
 		  Return VTAPI.SendRequest(FileSubmit_URL, js, sock, 0)
 		  
 		End Function
@@ -2268,6 +2272,9 @@ Protected Module VTAPI
 		Protected LastResponseVerbose As String
 	#tag EndProperty
 
+
+	#tag Constant, Name = Boundary, Type = String, Dynamic = False, Default = \"--------0xKhTmLbOuNdArY", Scope = Private
+	#tag EndConstant
 
 	#tag Constant, Name = CommentPut_URL, Type = String, Dynamic = False, Default = \"www.virustotal.com/vtapi/v2/comments/put", Scope = Private
 	#tag EndConstant
