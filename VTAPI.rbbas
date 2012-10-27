@@ -2204,9 +2204,9 @@ Protected Module VTAPI
 		    js = New JSONItem(s)
 		    LastResponseCode = js.Value("response_code")
 		    LastResponseVerbose = js.Value("verbose_msg")
-		    Return New JSONItem(s)
+		    Return js
 		  Catch Err As JSONException
-		    If VTSock.LastErrorCode <> 0 Then
+		    If VTSock.LastErrorCode = 0 Then
 		      LastResponseCode = INVALID_RESPONSE
 		      LastResponseVerbose = "VirusTotal.com responded with improperly formatted data."
 		    Else
