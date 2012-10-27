@@ -6,7 +6,7 @@ Protected Module VTAPI
 		  js.Value("apikey") = APIKey
 		  js.Value("resource") = ResourceID
 		  js.Value("comment") = Comment
-		  Return SendRequest(CommentPut_URL, js)
+		  Return SendRequest(VT_Put_Comment, js)
 		  
 		End Function
 	#tag EndMethod
@@ -23,7 +23,7 @@ Protected Module VTAPI
 		  // Step 1: Initialize data string
 		  
 		  // start with boundary line
-		  data="--" + boundary + CRLF
+		  data="--" + MIMEBoundary + CRLF
 		  
 		  // Step 2: Add each of the text-based form fields
 		  // as a separate MIME part, followed by a boundary
@@ -32,7 +32,7 @@ Protected Module VTAPI
 		  'data = data + "Content-Disposition: form-data; name=""file""" + CRLF + CRLF + File.Name + CRLF
 		  
 		  // boundary to separate the above from the next part
-		  'data = data + "--" + boundary + CRLF
+		  'data = data + "--" + MIMEBoundary + CRLF
 		  
 		  // Next comes the actual file itself, with headers indicating what type it is
 		  // and what content type we&apos;re using (raw binary in this case)
@@ -41,7 +41,7 @@ Protected Module VTAPI
 		  
 		  
 		  // Now our closing boundary marker, and our data is ready to send
-		  data = data + "--" + boundary + CRLF + CRLF
+		  data = data + "--" + MIMEBoundary + CRLF + CRLF
 		  //whew...
 		  
 		  Return data
@@ -55,18 +55,18 @@ Protected Module VTAPI
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function GetReport(ResourceID As String, APIKey As String, ReportType As Integer = 0) As JSONItem
+		Function GetReport(ResourceID As String, APIKey As String, ReportType As ReportType) As JSONItem
 		  'Report type can be 0 or 1. 0 is for files, 1 is for URLs.
 		  Dim js As New JSONItem
 		  js.Value("apikey") = APIKey
 		  
 		  Select Case ReportType
-		  Case TypeFile
+		  Case VTAPI.ReportType.FileReport
 		    js.Value("resource") = ResourceID
-		    Return SendRequest(FileReport_URL, js)
-		  Case TypeURL
+		    Return SendRequest(VT_Get_File, js)
+		  Case VTAPI.ReportType.URLReport
 		    js.Value("url") = ResourceID
-		    Return SendRequest(URLReport_URL, js)
+		    Return SendRequest(VT_Get_URL, js)
 		  End Select
 		End Function
 	#tag EndMethod
@@ -2183,7 +2183,7 @@ Protected Module VTAPI
 		  Dim js As New JSONItem
 		  js.Value("resource") =ResourceID
 		  js.Value("apikey") = APIKey
-		  Return SendRequest(FileRescan_URL, js)
+		  Return SendRequest(VT_Rescan_File, js)
 		End Function
 	#tag EndMethod
 
@@ -2254,14 +2254,41 @@ Protected Module VTAPI
 		  Dim js As New JSONItem
 		  Dim sock As New HTTPSecureSocket
 		  
-		  'js.Value("file") = File.Name
+		  js.Value("file") = File.Name
 		  js.Value("apikey") = APIKey
 		  Dim upload As String = ConstructUpload(File)  '<-- doesn't work. help? https://www.virustotal.com/documentation/public-api/#scanning-files
-		  sock.SetRequestContent(upload, "multipart/form-data, boundary=" + boundary)
-		  Return VTAPI.SendRequest(FileSubmit_URL, js, sock, 0)
+		  sock.SetRequestContent(upload, "multipart/form-data, boundary=" + MIMEBoundary)
+		  Return VTAPI.SendRequest(VT_Submit_File, js, sock, 0)
 		  
 		End Function
 	#tag EndMethod
+
+
+	#tag Note, Name = How to use
+		Reference: https://www.virustotal.com/documentation/public-api/
+		
+		All public functions of this module correspond to an actions available 
+		through the public VirusTotal API v.2. All interactions with the API require an
+		API key. 
+		
+		The Virus Total API returns JSON. Luckily, REALstudio has shipped with built-in 
+		JSON support since RS2011r2. All the public functions of this module, therefore, 
+		return JSONItems (or Nil, on error.)
+		
+		If the returned JSONItem was not Nil, then LastResponseCode and 
+		LastResponseVerbose correspond to the response_code and verbose_msg members 
+		of Virus Total's response. 
+		
+		If the returned JSONItem was Nil, and it was because of a socket error, then 
+		LastResponseCode and LastResponseVerbose correspond to the RB socket error 
+		number and a brief error message. 
+		
+		If the returned JSONItem was Nil, and it was because of a JSON error, then 
+		LastResponseCode is VTAPI.INVALID_RESPONSE and LastResponseVerbose is a 
+		brief error message. 
+		
+		
+	#tag EndNote
 
 
 	#tag Property, Flags = &h1
@@ -2273,32 +2300,32 @@ Protected Module VTAPI
 	#tag EndProperty
 
 
-	#tag Constant, Name = Boundary, Type = String, Dynamic = False, Default = \"--------0xKhTmLbOuNdArY", Scope = Private
-	#tag EndConstant
-
-	#tag Constant, Name = CommentPut_URL, Type = String, Dynamic = False, Default = \"www.virustotal.com/vtapi/v2/comments/put", Scope = Private
-	#tag EndConstant
-
-	#tag Constant, Name = FileReport_URL, Type = String, Dynamic = False, Default = \"www.virustotal.com/vtapi/v2/file/report", Scope = Private
-	#tag EndConstant
-
-	#tag Constant, Name = FileRescan_URL, Type = String, Dynamic = False, Default = \"www.virustotal.com/vtapi/v2/file/rescan", Scope = Private
-	#tag EndConstant
-
-	#tag Constant, Name = FileSubmit_URL, Type = String, Dynamic = False, Default = \"www.virustotal.com/vtapi/v2/file/scan", Scope = Private
-	#tag EndConstant
-
 	#tag Constant, Name = INVALID_RESPONSE, Type = Double, Dynamic = False, Default = \"255", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = TypeFile, Type = Double, Dynamic = False, Default = \"0", Scope = Protected
+	#tag Constant, Name = MIMEBoundary, Type = String, Dynamic = False, Default = \"--------0xKhTmLMIMEBoundary", Scope = Private
 	#tag EndConstant
 
-	#tag Constant, Name = TypeURL, Type = Double, Dynamic = False, Default = \"1", Scope = Protected
+	#tag Constant, Name = VT_Get_File, Type = String, Dynamic = False, Default = \"www.virustotal.com/vtapi/v2/file/report", Scope = Private
 	#tag EndConstant
 
-	#tag Constant, Name = URLReport_URL, Type = String, Dynamic = False, Default = \"www.virustotal.com/vtapi/v2/url/scan", Scope = Private
+	#tag Constant, Name = VT_Get_URL, Type = String, Dynamic = False, Default = \"www.virustotal.com/vtapi/v2/url/scan", Scope = Private
 	#tag EndConstant
+
+	#tag Constant, Name = VT_Put_Comment, Type = String, Dynamic = False, Default = \"www.virustotal.com/vtapi/v2/comments/put", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = VT_Rescan_File, Type = String, Dynamic = False, Default = \"www.virustotal.com/vtapi/v2/file/rescan", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = VT_Submit_File, Type = String, Dynamic = False, Default = \"www.virustotal.com/vtapi/v2/file/scan", Scope = Private
+	#tag EndConstant
+
+
+	#tag Enum, Name = ReportType, Type = Integer, Flags = &h1
+		FileReport
+		URLReport
+	#tag EndEnum
 
 
 	#tag ViewBehavior

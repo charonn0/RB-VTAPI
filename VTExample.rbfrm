@@ -373,7 +373,7 @@ Begin Window VTExample
       Index           =   -2147483648
       InitialParent   =   ""
       Italic          =   ""
-      Left            =   308
+      Left            =   248
       LockBottom      =   ""
       LockedInPosition=   False
       LockLeft        =   True
@@ -404,7 +404,7 @@ Begin Window VTExample
       Index           =   -2147483648
       InitialParent   =   ""
       Italic          =   ""
-      Left            =   188
+      Left            =   128
       LockBottom      =   ""
       LockedInPosition=   False
       LockLeft        =   True
@@ -435,7 +435,7 @@ Begin Window VTExample
       Index           =   -2147483648
       InitialParent   =   ""
       Italic          =   ""
-      Left            =   68
+      Left            =   8
       LockBottom      =   ""
       LockedInPosition=   False
       LockLeft        =   True
@@ -495,6 +495,37 @@ Begin Window VTExample
       Visible         =   True
       Width           =   301
    End
+   Begin PushButton PushButton5
+      AutoDeactivate  =   True
+      Bold            =   ""
+      ButtonStyle     =   0
+      Cancel          =   ""
+      Caption         =   "Upload File"
+      Default         =   False
+      Enabled         =   True
+      Height          =   22
+      HelpTag         =   ""
+      Index           =   -2147483648
+      InitialParent   =   ""
+      Italic          =   ""
+      Left            =   368
+      LockBottom      =   ""
+      LockedInPosition=   False
+      LockLeft        =   True
+      LockRight       =   ""
+      LockTop         =   True
+      Scope           =   0
+      TabIndex        =   12
+      TabPanelIndex   =   0
+      TabStop         =   True
+      TextFont        =   "System"
+      TextSize        =   0
+      TextUnit        =   0
+      Top             =   64
+      Underline       =   ""
+      Visible         =   True
+      Width           =   118
+   End
 End
 #tag EndWindow
 
@@ -504,7 +535,7 @@ End
 #tag Events PushButton1
 	#tag Event
 		Sub Action()
-		  Dim js As JSONItem = VTAPI.GetReport(Resource.Text, APIKey.Text, VTAPI.TypeFile)
+		  Dim js As JSONItem = VTAPI.GetReport(Resource.Text, APIKey.Text, VTAPI.ReportType.FileReport)
 		  Output.Text = js.ToString()
 		  LastError.Text = Str(VTAPI.LastResponseCode)
 		  Verbose.Text = Str(VTAPI.LastResponseVerbose)
@@ -514,7 +545,7 @@ End
 #tag Events PushButton2
 	#tag Event
 		Sub Action()
-		  Dim js As JSONItem = VTAPI.GetReport(Resource.Text, APIKey.Text, VTAPI.TypeURL)
+		  Dim js As JSONItem = VTAPI.GetReport(Resource.Text, APIKey.Text, VTAPI.ReportType.URLReport)
 		  Output.Text = js.ToString()
 		  LastError.Text = Str(VTAPI.LastResponseCode)
 		  Verbose.Text = Str(VTAPI.LastResponseVerbose)
@@ -530,6 +561,18 @@ End
 		  LastError.Text = Str(VTAPI.LastResponseCode)
 		  Verbose.Text = Str(VTAPI.LastResponseVerbose)
 		  
+		End Sub
+	#tag EndEvent
+#tag EndEvents
+#tag Events PushButton5
+	#tag Event
+		Sub Action()
+		  Dim f As FolderItem = GetOpenFolderItem("")
+		  If f = Nil Then Return
+		  Dim js As JSONItem = VTAPI.SubmitFile(f, APIKey.Text)
+		  Output.Text = js.ToString()
+		  LastError.Text = Str(VTAPI.LastResponseCode)
+		  Verbose.Text = Str(VTAPI.LastResponseVerbose)
 		End Sub
 	#tag EndEvent
 #tag EndEvents
