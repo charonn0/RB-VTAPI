@@ -1,6 +1,6 @@
 Reference: https://www.virustotal.com/documentation/public-api/
 
-All public functions of this module correspond to an actions available 
+All public functions of this module correspond to actions available 
 through the public VirusTotal API v.2. All interactions with the API require an
 API key. 
 
