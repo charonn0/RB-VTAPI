@@ -2203,7 +2203,7 @@ Protected Module VTAPI
 		  Try
 		    js = New JSONItem(s)
 		    LastResponseCode = js.Value("response_code")
-		    LastResponseVerbose = js.Value("verbose_msg")
+		    If js.HasName("verbose_msg") Then LastResponseVerbose = js.Value("verbose_msg")
 		    Return js
 		  Catch Err As JSONException
 		    If VTSock.LastErrorCode = 0 Then
