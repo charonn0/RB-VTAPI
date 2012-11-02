@@ -2,6 +2,12 @@
 Protected Module VTAPI
 	#tag Method, Flags = &h0
 		Function AddComment(ResourceID As String, APIKey As String, Comment As String) As JSONItem
+		  'ResourceID is either a file hash or a URL
+		  'APIKey is the VirusTotal API key.
+		  'Comment is the text of the comment to post.
+		  '
+		  'Returns a JSONItem containing the response from VirusTotal, or Nil on error.
+		  
 		  Dim js As New JSONItem
 		  js.Value("apikey") = APIKey
 		  js.Value("resource") = ResourceID
@@ -56,7 +62,12 @@ Protected Module VTAPI
 
 	#tag Method, Flags = &h0
 		Function GetReport(ResourceID As String, APIKey As String, ReportType As ReportType) As JSONItem
-		  'Report type can be 0 or 1. 0 is for files, 1 is for URLs.
+		  'ResourceID is either a file hash or a URL
+		  'APIKey is the VirusTotal API key.
+		  'Report type is a member of the ReportType Enum. e.g. VTAPI.ReportType.FileReport
+		  '
+		  'Returns a JSONItem containing the report from VirusTotal, or Nil on error.
+		  
 		  Dim js As New JSONItem
 		  js.Value("apikey") = APIKey
 		  
@@ -2180,6 +2191,13 @@ Protected Module VTAPI
 
 	#tag Method, Flags = &h0
 		Function RequestRescan(ResourceID As String, APIKey As String) As JSONItem
+		  'ResourceID is either a file hash or a URL
+		  'APIKey is the VirusTotal API key.
+		  '
+		  'Returns a JSONItem containing the report from VirusTotal, or Nil on error.
+		  'Rescans requested via the public API are given the lowest priority. It may take
+		  'several hours for a rescan to be completed.
+		  
 		  Dim js As New JSONItem
 		  js.Value("resource") =ResourceID
 		  js.Value("apikey") = APIKey
@@ -2189,6 +2207,18 @@ Protected Module VTAPI
 
 	#tag Method, Flags = &h1
 		Protected Function SendRequest(URL As String, Request As JSONItem, VTSock As HTTPSecureSocket = Nil, Timeout As Integer = 5) As JSONItem
+		  'This function is used by other functions to do the actual talking to VirusTotal.
+		  
+		  'URL is the URL to send the Post request to (e.g. the VTAPI.VT_Put_Comment constant)
+		  'Request is a JSONItem containing the specific API request details.
+		  'VTSock is an optional HTTPSecureSocket. Use this parameter to provide a socket to be used, otherwise a new socket is created.
+		  'Timeout is the number of seconds before the request is said to have timed out.
+		  
+		  'Returns  JSONItem containing the response from VirusTotal, or Nil on error.
+		  
+		  'The Module properties "LastResponseCode" and "LastResponseVerbose" will either contain the last
+		  'VirusTotal Verbose_Msg/Status code or a socket error number and brief message.
+		  
 		  If VTSock = Nil Then VTSock = New HTTPSecureSocket
 		  VTSock.SetRequestHeader("User-Agent", "RB-VTAPI")
 		  VTSock.Secure = True
@@ -2249,7 +2279,13 @@ Protected Module VTAPI
 	#tag Method, Flags = &h0
 		Function SubmitFile(File As FolderItem, APIKey As String) As JSONItem
 		  'FIME
-		  'Please note that this method doesn't actually work.
+		  'Please note that this method doesn't actually work yet
+		  
+		  'File is the file to be uploaded
+		  'APIKey is the VirusTotal API key.
+		  '
+		  'Returns a JSONItem containing the response from VirusTotal, or Nil on error.
+		  'Submitted files may take several hours to be scanned.
 		  
 		  Dim js As New JSONItem
 		  Dim sock As New HTTPSecureSocket
