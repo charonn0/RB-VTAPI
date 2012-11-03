@@ -19,6 +19,8 @@ Protected Module VTAPI
 
 	#tag Method, Flags = &h21
 		Private Function ConstructUpload(File As FolderItem) As String
+		  'adapted from http://www.realsoftware.com/listarchives/realbasic-nug/2004-12/msg00731.html
+		  
 		  dim stream as BinaryStream
 		  dim postContent as String
 		  'Dim count As Integer = 1
@@ -2240,7 +2242,7 @@ Protected Module VTAPI
 		  'Returns  JSONItem containing the response from VirusTotal, or Nil on error.
 		  
 		  'The Module properties "LastResponseCode" and "LastResponseVerbose" will either contain the last
-		  'VirusTotal Verbose_Msg/Status code or a socket error number and brief message.
+		  'VirusTotal response_code and verbose_msg OR a socket error number and brief message OR VTAPI.INVALID_RESPONSE and an error message.
 		  
 		  If VTSock = Nil Then VTSock = New HTTPSecureSocket
 		  VTSock.SetRequestHeader("User-Agent", "RB-VTAPI")
@@ -2256,20 +2258,19 @@ Protected Module VTAPI
 		  Try
 		    js = New JSONItem(s)
 		    LastResponseCode = js.Value("response_code")
-		    If js.HasName("verbose_msg") Then LastResponseVerbose = js.Value("verbose_msg")
-		    Return js
-		  Catch Err As JSONException
+		    LastResponseVerbose = js.Value("verbose_msg")
+		  Catch
 		    If VTSock.LastErrorCode = 0 Then
 		      LastResponseCode = INVALID_RESPONSE
-		      LastResponseVerbose = "VirusTotal.com responded with improperly formatted data."
+		      LastResponseVerbose = "The response from '" + URL + "' was improperly formatted. Please try again later."
 		    Else
 		      LastResponseCode = VTSock.LastErrorCode
 		      LastResponseVerbose = SocketErrorMessage(VTSock)
 		    End If
 		    js = Nil
+		  Finally 
+		    Return js
 		  End Try
-		  
-		  Return js
 		End Function
 	#tag EndMethod
 

@@ -530,37 +530,43 @@ End
 #tag EndWindow
 
 #tag WindowCode
+	#tag Method, Flags = &h0
+		Sub HandleResponse(Response As JSONItem)
+		  If Response <> Nil Then
+		    Output.Text = Response.ToString()
+		  Else
+		    Output.Text = ""
+		  End If
+		  LastError.Text = Str(VTAPI.LastResponseCode)
+		  Verbose.Text = Str(VTAPI.LastResponseVerbose)
+		  
+		End Sub
+	#tag EndMethod
+
+
 #tag EndWindowCode
 
 #tag Events PushButton1
 	#tag Event
 		Sub Action()
-		  Dim js As JSONItem = VTAPI.GetReport(Resource.Text, APIKey.Text, VTAPI.ReportType.FileReport)
-		  Output.Text = js.ToString()
-		  LastError.Text = Str(VTAPI.LastResponseCode)
-		  Verbose.Text = Str(VTAPI.LastResponseVerbose)
+		  Dim Response As JSONItem = VTAPI.GetReport(Resource.Text, APIKey.Text, VTAPI.ReportType.FileReport)
+		  HandleResponse(Response)
 		End Sub
 	#tag EndEvent
 #tag EndEvents
 #tag Events PushButton2
 	#tag Event
 		Sub Action()
-		  Dim js As JSONItem = VTAPI.GetReport(Resource.Text, APIKey.Text, VTAPI.ReportType.URLReport)
-		  Output.Text = js.ToString()
-		  LastError.Text = Str(VTAPI.LastResponseCode)
-		  Verbose.Text = Str(VTAPI.LastResponseVerbose)
-		  
+		  Dim Response As JSONItem = VTAPI.GetReport(Resource.Text, APIKey.Text, VTAPI.ReportType.URLReport)
+		  HandleResponse(Response)
 		End Sub
 	#tag EndEvent
 #tag EndEvents
 #tag Events PushButton4
 	#tag Event
 		Sub Action()
-		  Dim js As JSONItem = VTAPI.RequestRescan(Resource.Text, APIKey.Text)
-		  Output.Text = js.ToString()
-		  LastError.Text = Str(VTAPI.LastResponseCode)
-		  Verbose.Text = Str(VTAPI.LastResponseVerbose)
-		  
+		  Dim Response As JSONItem = VTAPI.RequestRescan(Resource.Text, APIKey.Text)
+		  HandleResponse(Response)
 		End Sub
 	#tag EndEvent
 #tag EndEvents
@@ -569,10 +575,8 @@ End
 		Sub Action()
 		  Dim f As FolderItem = GetOpenFolderItem("")
 		  If f = Nil Then Return
-		  Dim js As JSONItem = VTAPI.SubmitFile(f, APIKey.Text)
-		  Output.Text = js.ToString()
-		  LastError.Text = Str(VTAPI.LastResponseCode)
-		  Verbose.Text = Str(VTAPI.LastResponseVerbose)
+		  Dim Response As JSONItem = VTAPI.SubmitFile(f, APIKey.Text)
+		  HandleResponse(Response)
 		End Sub
 	#tag EndEvent
 #tag EndEvents
