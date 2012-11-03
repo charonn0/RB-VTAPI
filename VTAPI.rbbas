@@ -19,38 +19,61 @@ Protected Module VTAPI
 
 	#tag Method, Flags = &h21
 		Private Function ConstructUpload(File As FolderItem) As String
-		  dim rawdata, data as string
-		  dim ReadStream as BinaryStream
-		  
-		  ReadStream = BinaryStream.Open(File)
-		  rawdata = ReadStream.Read(File.Length)
-		  
-		  
-		  // Step 1: Initialize data string
-		  
-		  // start with boundary line
-		  data="--" + MIMEBoundary + CRLF
-		  
-		  // Step 2: Add each of the text-based form fields
-		  // as a separate MIME part, followed by a boundary
-		  
-		  // Now the file name of the first image
-		  'data = data + "Content-Disposition: form-data; name=""file""" + CRLF + CRLF + File.Name + CRLF
-		  
-		  // boundary to separate the above from the next part
-		  'data = data + "--" + MIMEBoundary + CRLF
-		  
-		  // Next comes the actual file itself, with headers indicating what type it is
-		  // and what content type we&apos;re using (raw binary in this case)
-		  
-		  data = data + "Content-Disposition: form-data; name=""file""; filename=""" +  File.Name + """" + CRLF + "Content-Type: " + HTTPMimeString(File.Name) + CRLF + "Content-Length: " + str(lenb(rawdata)) + CRLF + "Content-Transfer-Encoding: binary" + CRLF + CRLF + rawdata + CRLF
+		  dim stream as BinaryStream
+		  dim postContent as String
+		  'Dim count As Integer = 1
+		  ' Pick an arbitrary name for our boundaries
 		  
 		  
-		  // Now our closing boundary marker, and our data is ready to send
-		  data = data + "--" + MIMEBoundary + CRLF + CRLF
-		  //whew...
+		  ' Loop over all our content
+		  'for i As Integer = 0 to content.Count - 1
+		  ' Set up a MIMEBoundary
+		  postContent = postContent + "--" + MIMEBoundary + crlf
+		  ' Set our content disposition
 		  
-		  Return data
+		  postContent = postContent + "Content-Disposition: form-data; name=""file"""
+		  
+		  ' Check to see if we got an object in our conent.  If we
+		  ' do, then we assume it is a FolderItem, and it is a file
+		  ' to be uploaded.
+		  'if varType( content.Value( content.Key( i ) ) ) = 9 then
+		  ' Get the file from the content dictionary
+		  'file = content.Value( content.key( i ) )
+		  ' We use the file's absolute path because that is what the
+		  ' server sends to us, and we need to match what the server
+		  ' sent exactly.
+		  
+		  postContent = postContent + "; filename=""" + file.AbsolutePath + """"
+		  
+		  ' Set the content type to being binary, since we
+		  ' really don't know what type of file it is.
+		  
+		  postContent = postContent + crlf + "Content-Type: application/binary" + crlf + crlf
+		  
+		  ' Open the file up as a binary stream
+		  stream = stream.Open(File)
+		  if stream = nil then
+		    
+		    ' If we couldn't get a stream, then we should report an error to the user,
+		    
+		    ' and return out from here.
+		    return ""
+		  end
+		  
+		  ' Read in the entire file to the string
+		  postContent = postContent + stream.Read( file.length )
+		  ' Close the binary stream
+		  stream.close
+		  
+		  'end if
+		  postContent = postContent + crlf
+		  'next
+		  
+		  ' Set the final MIMEBoundary
+		  postContent = postContent + "--" + MIMEBoundary + "--"
+		  
+		  //Now you can post the data
+		  Return postContent
 		End Function
 	#tag EndMethod
 
@@ -2477,7 +2500,6 @@ Protected Module VTAPI
 		apply, that proxy's public statement of acceptance of any version is
 		permanent authorization for you to choose that version for the
 		Library.
-		
 	#tag EndNote
 
 	#tag Note, Name = How to use
