@@ -2268,7 +2268,7 @@ Protected Module VTAPI
 		      LastResponseVerbose = SocketErrorMessage(VTSock)
 		    End If
 		    js = Nil
-		  Finally 
+		  Finally
 		    Return js
 		  End Try
 		End Function
@@ -2317,7 +2317,11 @@ Protected Module VTAPI
 		  js.Value("file") = File.Name
 		  js.Value("apikey") = APIKey
 		  Dim upload As String = ConstructUpload(File)  '<-- doesn't work. help? https://www.virustotal.com/documentation/public-api/#scanning-files
-		  sock.SetRequestContent(upload, "multipart/form-data, boundary=" + MIMEBoundary)
+		  #If RBVersion >= 2012 Then
+		    sock.SetRequestContent(upload, "multipart/form-data, boundary=" + MIMEBoundary)
+		  #Else
+		    sock.SetPostContent(upload, "multipart/form-data, boundary=" + MIMEBoundary)
+		  #endif(upload, "multipart/form-data, boundary=" + MIMEBoundary)
 		  Return VTAPI.SendRequest(VT_Submit_File, js, sock, 0)
 		  
 		End Function
