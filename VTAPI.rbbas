@@ -2321,7 +2321,7 @@ Protected Module VTAPI
 		    sock.SetRequestContent(upload, "multipart/form-data, boundary=" + MIMEBoundary)
 		  #Else
 		    sock.SetPostContent(upload, "multipart/form-data, boundary=" + MIMEBoundary)
-		  #endif(upload, "multipart/form-data, boundary=" + MIMEBoundary)
+		  #endif
 		  Return VTAPI.SendRequest(VT_Submit_File, js, sock, 0)
 		  
 		End Function
