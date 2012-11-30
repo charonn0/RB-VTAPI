@@ -86,21 +86,21 @@ Protected Module VTAPI
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function GetReport(ResourceID As String, APIKey As String, ReportType As ReportType) As JSONItem
+		Function GetReport(ResourceID As String, APIKey As String, Type As ReportType) As JSONItem
 		  'ResourceID is either a file hash or a URL
 		  'APIKey is the VirusTotal API key.
-		  'Report type is a member of the ReportType Enum. e.g. VTAPI.ReportType.FileReport
+		  'Report type is a member of the ReportType Enum. e.g. VTAPI.ReportType.File
 		  '
 		  'Returns a JSONItem containing the report from VirusTotal, or Nil on error.
 		  
 		  Dim js As New JSONItem
 		  js.Value("apikey") = APIKey
 		  
-		  Select Case ReportType
-		  Case VTAPI.ReportType.FileReport
+		  Select Case Type
+		  Case ReportType.File
 		    js.Value("resource") = ResourceID
 		    Return SendRequest(VT_Get_File, js)
-		  Case VTAPI.ReportType.URLReport
+		  Case ReportType.URL
 		    js.Value("url") = ResourceID
 		    Return SendRequest(VT_Get_URL, js)
 		  End Select
@@ -2564,8 +2564,8 @@ Protected Module VTAPI
 
 
 	#tag Enum, Name = ReportType, Type = Integer, Flags = &h1
-		FileReport
-		URLReport
+		File
+		URL
 	#tag EndEnum
 
 

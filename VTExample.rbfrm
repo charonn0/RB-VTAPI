@@ -549,7 +549,7 @@ End
 #tag Events PushButton1
 	#tag Event
 		Sub Action()
-		  Dim Response As JSONItem = VTAPI.GetReport(Resource.Text, APIKey.Text, VTAPI.ReportType.FileReport)
+		  Dim Response As JSONItem = VTAPI.GetReport(Resource.Text, APIKey.Text, VTAPI.ReportType.File)
 		  HandleResponse(Response)
 		End Sub
 	#tag EndEvent
@@ -557,7 +557,7 @@ End
 #tag Events PushButton2
 	#tag Event
 		Sub Action()
-		  Dim Response As JSONItem = VTAPI.GetReport(Resource.Text, APIKey.Text, VTAPI.ReportType.URLReport)
+		  Dim Response As JSONItem = VTAPI.GetReport(Resource.Text, APIKey.Text, VTAPI.ReportType.URL)
 		  HandleResponse(Response)
 		End Sub
 	#tag EndEvent
