@@ -87,7 +87,7 @@ Protected Module VTAPI
 
 	#tag Method, Flags = &h0
 		Function GetReport(ResourceID As String, APIKey As String, Type As ReportType) As JSONItem
-		  'ResourceID is either a file hash or a URL
+		  'ResourceID is either a file hash, IPv4 address, domain name, or a URL
 		  'APIKey is the VirusTotal API key.
 		  'Report type is a member of the ReportType Enum. e.g. VTAPI.ReportType.File
 		  '
