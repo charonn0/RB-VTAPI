@@ -12,7 +12,7 @@ Protected Module VTAPI
 		  js.Value("apikey") = APIKey
 		  js.Value("resource") = ResourceID
 		  js.Value("comment") = Comment
-		  Return SendRequest(VT_Put_Comment, js)
+		  Return SendRequest(VT_Put_Comment, js, ReportType.File)
 		  
 		End Function
 	#tag EndMethod
@@ -99,10 +99,16 @@ Protected Module VTAPI
 		  Select Case Type
 		  Case ReportType.File
 		    js.Value("resource") = ResourceID
-		    Return SendRequest(VT_Get_File, js)
+		    Return SendRequest(VT_Get_File, js, Type)
 		  Case ReportType.URL
 		    js.Value("url") = ResourceID
-		    Return SendRequest(VT_Get_URL, js)
+		    Return SendRequest(VT_Get_URL, js, Type)
+		  Case ReportType.IPv4
+		    js.Value("ip") = ResourceID
+		    Return SendRequest(VT_Get_IP, js, Type)
+		  Case ReportType.Domain
+		    js.Value("domain") = ResourceID
+		    Return SendRequest(VT_Get_Domain, js, Type)
 		  End Select
 		End Function
 	#tag EndMethod
@@ -2226,12 +2232,12 @@ Protected Module VTAPI
 		  Dim js As New JSONItem
 		  js.Value("resource") =ResourceID
 		  js.Value("apikey") = APIKey
-		  Return SendRequest(VT_Rescan_File, js)
+		  Return SendRequest(VT_Rescan_File, js, ReportType.File)
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function SendRequest(URL As String, Request As JSONItem, VTSock As HTTPSecureSocket = Nil, Timeout As Integer = 5) As JSONItem
+		Protected Function SendRequest(URL As String, Request As JSONItem, Type As ReportType, VTSock As HTTPSecureSocket = Nil, Timeout As Integer = 5) As JSONItem
 		  'This function is used by other functions to do the actual talking to VirusTotal.
 		  
 		  'URL is the URL to send the Post request to (e.g. the VTAPI.VT_Put_Comment constant)
@@ -2248,15 +2254,28 @@ Protected Module VTAPI
 		  VTSock.SetRequestHeader("User-Agent", "RB-VTAPI")
 		  VTSock.Secure = True
 		  VTSock.ConnectionType = VTSock.TLSv1
-		  dim formData As New Dictionary
-		  For Each Name As String In Request.Names
-		    formData.Value(Name) = Request.Value(Name)
-		  Next
-		  VTSock.SetFormData(formData)
-		  Dim s As String = VTSock.Post(URL, Timeout)
+		  Dim response As String
+		  Select Case Type
+		  Case ReportType.File, ReportType.URL
+		    dim formData As New Dictionary
+		    For Each Name As String In Request.Names
+		      formData.Value(Name) = Request.Value(Name)
+		    Next
+		    VTSock.SetFormData(formData)
+		    response = VTSock.Post(URL, Timeout)
+		  Case ReportType.IPv4, ReportType.Domain
+		    URL = URL + "?"
+		    For i As Integer = 0 To Request.Count - 1
+		      Dim name As String = Request.Name(i)
+		      URL = URL + Name + "=" + Request.Value(Name)
+		      If i < Request.Count - 1 Then URL = URL + "&"
+		    Next
+		    response = VTSock.Get(URL, Timeout)
+		  End Select
+		  
 		  Dim js As JSONItem
 		  Try
-		    js = New JSONItem(s)
+		    js = New JSONItem(response)
 		    LastResponseCode = js.Value("response_code")
 		    LastResponseVerbose = js.Value("verbose_msg")
 		  Catch
@@ -2322,7 +2341,7 @@ Protected Module VTAPI
 		  #Else
 		    sock.SetPostContent(upload, "multipart/form-data, boundary=" + MIMEBoundary)
 		  #endif
-		  Return VTAPI.SendRequest(VT_Submit_File, js, sock, 0)
+		  Return VTAPI.SendRequest(VT_Submit_File, js, ReportType.File, sock, 0)
 		  
 		End Function
 	#tag EndMethod
@@ -2547,7 +2566,13 @@ Protected Module VTAPI
 	#tag Constant, Name = MIMEBoundary, Type = String, Dynamic = False, Default = \"--------0xKhTmLMIMEBoundary", Scope = Private
 	#tag EndConstant
 
+	#tag Constant, Name = VT_Get_Domain, Type = String, Dynamic = False, Default = \"www.virustotal.com/vtapi/v2/domain/report", Scope = Private
+	#tag EndConstant
+
 	#tag Constant, Name = VT_Get_File, Type = String, Dynamic = False, Default = \"www.virustotal.com/vtapi/v2/file/report", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = VT_Get_IP, Type = String, Dynamic = False, Default = \"www.virustotal.com/vtapi/v2/ip-address/report", Scope = Private
 	#tag EndConstant
 
 	#tag Constant, Name = VT_Get_URL, Type = String, Dynamic = False, Default = \"www.virustotal.com/vtapi/v2/url/scan", Scope = Private
@@ -2565,7 +2590,9 @@ Protected Module VTAPI
 
 	#tag Enum, Name = ReportType, Type = Integer, Flags = &h1
 		File
-		URL
+		  URL
+		  IPv4
+		Domain
 	#tag EndEnum
 
 

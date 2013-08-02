@@ -7,7 +7,7 @@ Begin Window VTExample
    Frame           =   0
    FullScreen      =   False
    HasBackColor    =   False
-   Height          =   3.15e+2
+   Height          =   3.5e+2
    ImplicitInstance=   True
    LiveResize      =   True
    MacProcID       =   0
@@ -23,7 +23,7 @@ Begin Window VTExample
    Resizeable      =   False
    Title           =   "RB-VTAPI Example"
    Visible         =   True
-   Width           =   4.95e+2
+   Width           =   3.71e+2
    Begin GroupBox GroupBox1
       AutoDeactivate  =   True
       Bold            =   ""
@@ -46,10 +46,10 @@ Begin Window VTExample
       TextFont        =   "System"
       TextSize        =   0
       TextUnit        =   0
-      Top             =   90
+      Top             =   124
       Underline       =   ""
       Visible         =   True
-      Width           =   478
+      Width           =   358
       Begin TextArea Output
          AcceptTabs      =   ""
          Alignment       =   0
@@ -90,11 +90,11 @@ Begin Window VTExample
          TextFont        =   "System"
          TextSize        =   0
          TextUnit        =   0
-         Top             =   145
+         Top             =   179
          Underline       =   ""
          UseFocusRing    =   True
          Visible         =   True
-         Width           =   448
+         Width           =   328
       End
       Begin Label Label4
          AutoDeactivate  =   True
@@ -124,7 +124,7 @@ Begin Window VTExample
          TextFont        =   "System"
          TextSize        =   0
          TextUnit        =   0
-         Top             =   112
+         Top             =   146
          Transparent     =   False
          Underline       =   ""
          Visible         =   True
@@ -158,7 +158,7 @@ Begin Window VTExample
          TextFont        =   "System"
          TextSize        =   0
          TextUnit        =   0
-         Top             =   112
+         Top             =   146
          Transparent     =   False
          Underline       =   ""
          Visible         =   True
@@ -201,7 +201,7 @@ Begin Window VTExample
          TextFont        =   "System"
          TextSize        =   0
          TextUnit        =   0
-         Top             =   112
+         Top             =   146
          Underline       =   ""
          UseFocusRing    =   True
          Visible         =   True
@@ -248,7 +248,7 @@ Begin Window VTExample
       Underline       =   ""
       UseFocusRing    =   True
       Visible         =   True
-      Width           =   428
+      Width           =   308
    End
    Begin TextField Resource
       AcceptTabs      =   ""
@@ -290,7 +290,7 @@ Begin Window VTExample
       Underline       =   ""
       UseFocusRing    =   True
       Visible         =   True
-      Width           =   428
+      Width           =   308
    End
    Begin Label Label1
       AutoDeactivate  =   True
@@ -489,11 +489,11 @@ Begin Window VTExample
       TextFont        =   "System"
       TextSize        =   0
       TextUnit        =   0
-      Top             =   111
+      Top             =   145
       Underline       =   ""
       UseFocusRing    =   True
       Visible         =   True
-      Width           =   301
+      Width           =   181
    End
    Begin PushButton PushButton5
       AutoDeactivate  =   True
@@ -508,7 +508,7 @@ Begin Window VTExample
       Index           =   -2147483648
       InitialParent   =   ""
       Italic          =   ""
-      Left            =   368
+      Left            =   248
       LockBottom      =   ""
       LockedInPosition=   False
       LockLeft        =   True
@@ -521,7 +521,69 @@ Begin Window VTExample
       TextFont        =   "System"
       TextSize        =   0
       TextUnit        =   0
-      Top             =   64
+      Top             =   90
+      Underline       =   ""
+      Visible         =   True
+      Width           =   118
+   End
+   Begin PushButton PushButton3
+      AutoDeactivate  =   True
+      Bold            =   ""
+      ButtonStyle     =   0
+      Cancel          =   ""
+      Caption         =   "Check IP Address"
+      Default         =   ""
+      Enabled         =   True
+      Height          =   22
+      HelpTag         =   ""
+      Index           =   -2147483648
+      InitialParent   =   ""
+      Italic          =   ""
+      Left            =   8
+      LockBottom      =   ""
+      LockedInPosition=   False
+      LockLeft        =   True
+      LockRight       =   ""
+      LockTop         =   True
+      Scope           =   0
+      TabIndex        =   13
+      TabPanelIndex   =   0
+      TabStop         =   True
+      TextFont        =   "System"
+      TextSize        =   0
+      TextUnit        =   0
+      Top             =   90
+      Underline       =   ""
+      Visible         =   True
+      Width           =   118
+   End
+   Begin PushButton PushButton6
+      AutoDeactivate  =   True
+      Bold            =   ""
+      ButtonStyle     =   0
+      Cancel          =   ""
+      Caption         =   "Check Domain"
+      Default         =   ""
+      Enabled         =   True
+      Height          =   22
+      HelpTag         =   ""
+      Index           =   -2147483648
+      InitialParent   =   ""
+      Italic          =   ""
+      Left            =   128
+      LockBottom      =   ""
+      LockedInPosition=   False
+      LockLeft        =   True
+      LockRight       =   ""
+      LockTop         =   True
+      Scope           =   0
+      TabIndex        =   14
+      TabPanelIndex   =   0
+      TabStop         =   True
+      TextFont        =   "System"
+      TextSize        =   0
+      TextUnit        =   0
+      Top             =   90
       Underline       =   ""
       Visible         =   True
       Width           =   118
@@ -576,6 +638,22 @@ End
 		  Dim f As FolderItem = GetOpenFolderItem("")
 		  If f = Nil Then Return
 		  Dim Response As JSONItem = VTAPI.SubmitFile(f, APIKey.Text)
+		  HandleResponse(Response)
+		End Sub
+	#tag EndEvent
+#tag EndEvents
+#tag Events PushButton3
+	#tag Event
+		Sub Action()
+		  Dim Response As JSONItem = VTAPI.GetReport(Resource.Text, APIKey.Text, VTAPI.ReportType.IPv4)
+		  HandleResponse(Response)
+		End Sub
+	#tag EndEvent
+#tag EndEvents
+#tag Events PushButton6
+	#tag Event
+		Sub Action()
+		  Dim Response As JSONItem = VTAPI.GetReport(Resource.Text, APIKey.Text, VTAPI.ReportType.Domain)
 		  HandleResponse(Response)
 		End Sub
 	#tag EndEvent
