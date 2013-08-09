@@ -2265,11 +2265,11 @@ Protected Module VTAPI
 		    response = VTSock.Post(URL, Timeout)
 		  Case ReportType.IPv4, ReportType.Domain
 		    URL = URL + "?"
+		    Dim parts() As String
 		    For i As Integer = 0 To Request.Count - 1
-		      Dim name As String = Request.Name(i)
-		      URL = URL + Name + "=" + Request.Value(Name)
-		      If i < Request.Count - 1 Then URL = URL + "&"
+		      parts.Append(Request.Name(i) + "=" + Request.Value(Request.Name(i)))
 		    Next
+		    URL = URL + Join(parts, "&")
 		    response = VTSock.Get(URL, Timeout)
 		  End Select
 		  
