@@ -96,116 +96,26 @@ Begin Window VTExample
          Visible         =   True
          Width           =   328
       End
-      Begin Label Label4
+      Begin ProgressBar ProgressBar1
          AutoDeactivate  =   True
-         Bold            =   ""
-         DataField       =   ""
-         DataSource      =   ""
          Enabled         =   True
          Height          =   20
          HelpTag         =   ""
          Index           =   -2147483648
          InitialParent   =   "GroupBox1"
-         Italic          =   ""
-         Left            =   108
+         Left            =   23
          LockBottom      =   ""
          LockedInPosition=   False
          LockLeft        =   True
          LockRight       =   ""
          LockTop         =   True
-         Multiline       =   ""
+         Maximum         =   100
          Scope           =   0
-         Selectable      =   False
-         TabIndex        =   1
          TabPanelIndex   =   0
-         Text            =   "Message:"
-         TextAlign       =   2
-         TextColor       =   &h000000
-         TextFont        =   "System"
-         TextSize        =   0
-         TextUnit        =   0
-         Top             =   146
-         Transparent     =   False
-         Underline       =   ""
+         Top             =   147
+         Value           =   0
          Visible         =   True
-         Width           =   56
-      End
-      Begin Label Label3
-         AutoDeactivate  =   True
-         Bold            =   ""
-         DataField       =   ""
-         DataSource      =   ""
-         Enabled         =   True
-         Height          =   20
-         HelpTag         =   ""
-         Index           =   -2147483648
-         InitialParent   =   "GroupBox1"
-         Italic          =   ""
-         Left            =   18
-         LockBottom      =   ""
-         LockedInPosition=   False
-         LockLeft        =   True
-         LockRight       =   ""
-         LockTop         =   True
-         Multiline       =   ""
-         Scope           =   0
-         Selectable      =   False
-         TabIndex        =   2
-         TabPanelIndex   =   0
-         Text            =   "Code:"
-         TextAlign       =   2
-         TextColor       =   &h000000
-         TextFont        =   "System"
-         TextSize        =   0
-         TextUnit        =   0
-         Top             =   146
-         Transparent     =   False
-         Underline       =   ""
-         Visible         =   True
-         Width           =   38
-      End
-      Begin TextField LastError
-         AcceptTabs      =   ""
-         Alignment       =   0
-         AutoDeactivate  =   True
-         AutomaticallyCheckSpelling=   False
-         BackColor       =   &hFFFFFF
-         Bold            =   ""
-         Border          =   True
-         CueText         =   ""
-         DataField       =   ""
-         DataSource      =   ""
-         Enabled         =   True
-         Format          =   ""
-         Height          =   22
-         HelpTag         =   ""
-         Index           =   -2147483648
-         InitialParent   =   "GroupBox1"
-         Italic          =   ""
-         Left            =   58
-         LimitText       =   0
-         LockBottom      =   ""
-         LockedInPosition=   False
-         LockLeft        =   True
-         LockRight       =   ""
-         LockTop         =   True
-         Mask            =   ""
-         Password        =   ""
-         ReadOnly        =   ""
-         Scope           =   0
-         TabIndex        =   3
-         TabPanelIndex   =   0
-         TabStop         =   True
-         Text            =   ""
-         TextColor       =   &h000000
-         TextFont        =   "System"
-         TextSize        =   0
-         TextUnit        =   0
-         Top             =   146
-         Underline       =   ""
-         UseFocusRing    =   True
-         Visible         =   True
-         Width           =   38
+         Width           =   328
       End
    End
    Begin TextField APIKey
@@ -453,48 +363,6 @@ Begin Window VTExample
       Visible         =   True
       Width           =   118
    End
-   Begin TextField Verbose
-      AcceptTabs      =   ""
-      Alignment       =   0
-      AutoDeactivate  =   True
-      AutomaticallyCheckSpelling=   False
-      BackColor       =   &hFFFFFF
-      Bold            =   ""
-      Border          =   True
-      CueText         =   ""
-      DataField       =   ""
-      DataSource      =   ""
-      Enabled         =   True
-      Format          =   ""
-      Height          =   22
-      HelpTag         =   ""
-      Index           =   -2147483648
-      Italic          =   ""
-      Left            =   170
-      LimitText       =   0
-      LockBottom      =   ""
-      LockedInPosition=   False
-      LockLeft        =   True
-      LockRight       =   ""
-      LockTop         =   True
-      Mask            =   ""
-      Password        =   ""
-      ReadOnly        =   ""
-      Scope           =   0
-      TabIndex        =   11
-      TabPanelIndex   =   0
-      TabStop         =   True
-      Text            =   ""
-      TextColor       =   &h000000
-      TextFont        =   "System"
-      TextSize        =   0
-      TextUnit        =   0
-      Top             =   145
-      Underline       =   ""
-      UseFocusRing    =   True
-      Visible         =   True
-      Width           =   181
-   End
    Begin PushButton PushButton5
       AutoDeactivate  =   True
       Bold            =   ""
@@ -588,19 +456,28 @@ Begin Window VTExample
       Visible         =   True
       Width           =   118
    End
+   Begin VTAPI.VTSession VTSession1
+      Address         =   ""
+      BytesAvailable  =   ""
+      BytesLeftToSend =   ""
+      Height          =   32
+      Index           =   -2147483648
+      IsConnected     =   0
+      Left            =   418
+      LockedInPosition=   False
+      Port            =   0
+      Scope           =   1
+      TabPanelIndex   =   0
+      Top             =   5
+      Width           =   32
+      yield           =   0
+   End
 End
 #tag EndWindow
 
 #tag WindowCode
 	#tag Method, Flags = &h0
 		Sub HandleResponse(Response As JSONItem)
-		  If Response <> Nil Then
-		    Output.Text = Response.ToString()
-		  Else
-		    Output.Text = ""
-		  End If
-		  LastError.Text = Str(VTAPI.LastResponseCode)
-		  Verbose.Text = Str(VTAPI.LastResponseVerbose)
 		  
 		End Sub
 	#tag EndMethod
@@ -611,24 +488,26 @@ End
 #tag Events PushButton1
 	#tag Event
 		Sub Action()
-		  Dim Response As JSONItem = VTAPI.GetReport(Resource.Text, APIKey.Text, VTAPI.ReportType.File)
-		  HandleResponse(Response)
+		  VTSession1.APIKey = APIKey.Text
+		  VTSession1.GetReport(Resource.Text, VTAPI.RequestType.FileReport)
+		  
 		End Sub
 	#tag EndEvent
 #tag EndEvents
 #tag Events PushButton2
 	#tag Event
 		Sub Action()
-		  Dim Response As JSONItem = VTAPI.GetReport(Resource.Text, APIKey.Text, VTAPI.ReportType.URL)
-		  HandleResponse(Response)
+		  VTSession1.APIKey = APIKey.Text
+		  VTSession1.GetReport(Resource.Text, VTAPI.RequestType.URLReport)
+		  
 		End Sub
 	#tag EndEvent
 #tag EndEvents
 #tag Events PushButton4
 	#tag Event
 		Sub Action()
-		  Dim Response As JSONItem = VTAPI.RequestRescan(Resource.Text, APIKey.Text)
-		  HandleResponse(Response)
+		  VTSession1.APIKey = APIKey.Text
+		  VTSession1.RequestRescan(Resource.Text)
 		End Sub
 	#tag EndEvent
 #tag EndEvents
@@ -637,24 +516,53 @@ End
 		Sub Action()
 		  Dim f As FolderItem = GetOpenFolderItem("")
 		  If f = Nil Then Return
-		  Dim Response As JSONItem = VTAPI.SubmitFile(f, APIKey.Text)
-		  HandleResponse(Response)
+		  VTSession1.APIKey = APIKey.Text
+		  ProgressBar1.Maximum = f.Length
+		  VTSession1.SubmitFile(f)
 		End Sub
 	#tag EndEvent
 #tag EndEvents
 #tag Events PushButton3
 	#tag Event
 		Sub Action()
-		  Dim Response As JSONItem = VTAPI.GetReport(Resource.Text, APIKey.Text, VTAPI.ReportType.IPv4)
-		  HandleResponse(Response)
+		  VTSession1.APIKey = APIKey.Text
+		  VTSession1.GetReport(Resource.Text, VTAPI.RequestType.IPReport)
 		End Sub
 	#tag EndEvent
 #tag EndEvents
 #tag Events PushButton6
 	#tag Event
 		Sub Action()
-		  Dim Response As JSONItem = VTAPI.GetReport(Resource.Text, APIKey.Text, VTAPI.ReportType.Domain)
-		  HandleResponse(Response)
+		  VTSession1.APIKey = APIKey.Text
+		  VTSession1.GetReport(Resource.Text, VTAPI.RequestType.DomainReport)
+		End Sub
+	#tag EndEvent
+#tag EndEvents
+#tag Events VTSession1
+	#tag Event
+		Sub Response(ResponseObject As JSONItem, HTTPStatus As Integer)
+		  If ResponseObject <> Nil Then
+		    Output.Text = ResponseObject.ToString()
+		  Else
+		    Break
+		    Output.Text = ""
+		  End If
+		  
+		End Sub
+	#tag EndEvent
+	#tag Event
+		Sub Error(code as integer)
+		  Break
+		End Sub
+	#tag EndEvent
+	#tag Event
+		Function SendProgress(bytesSent as Integer, bytesLeft as Integer) As Boolean
+		  ProgressBar1.Value = ProgressBar1.Value + bytesSent
+		End Function
+	#tag EndEvent
+	#tag Event
+		Sub Connected()
+		  ProgressBar1.Value = 0
 		End Sub
 	#tag EndEvent
 #tag EndEvents
